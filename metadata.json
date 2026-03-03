@@ -1,0 +1,5 @@
+{
+  "name": "Aura AI Assistant",
+  "description": "Aura is Mr. Vajje's personal AI assistant that takes calls, schedules meetings, and sends notifications.",
+  "requestFramePermissions": ["microphone"]
+}
