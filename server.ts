@@ -117,6 +117,38 @@ async function startServer() {
     });
   }
 
+  // --- Twilio Voice Webhook (Voicemail Entry Point) ---
+  // This endpoint would be set as the "A call comes in" URL in Twilio
+  app.post("/api/voice/incoming", (req, res) => {
+    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+      <Response>
+        <Say voice="Polly.Joanna">Connecting you to Mr. Vajje's assistant, Aura.</Say>
+        <Connect>
+          <Stream url="wss://${req.headers.host}/api/voice/stream" />
+        </Connect>
+      </Response>`;
+    res.type("text/xml").send(twiml);
+  });
+
+  // Note: Real-time audio streaming from Twilio to Gemini requires 
+  // a WebSocket handler on the server to bridge the two.
+  // For this demo, we use the browser-based Live API, but the 
+  // server-side bridge is the path to a true 24/7 voicemail.
+
+  // --- Call Management Endpoints ---
+  app.post("/api/call/hold", (req, res) => {
+    const { onHold } = req.body;
+    console.log(`Call hold status: ${onHold}`);
+    res.json({ success: true, status: onHold ? "on_hold" : "active" });
+  });
+
+  app.post("/api/call/transfer", (req, res) => {
+    const { targetNumber } = req.body;
+    console.log(`Transferring call to: ${targetNumber}`);
+    // In a real Twilio setup, this would trigger a <Dial> TwiML
+    res.json({ success: true, message: `Transfer initiated to ${targetNumber}` });
+  });
+
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
